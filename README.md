@@ -1,3 +1,9 @@
+### Updates by sriram.sk
+
+- Move from `gym` to `gymnasium`
+- Add `__init__.py` and update `setup.py`
+
+
 <div align="center">
 <img src="https://github.com/Lifelong-Robot-Learning/LIBERO/blob/master/images/libero_logo.png" width="360">
 
