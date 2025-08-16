@@ -85,7 +85,15 @@ class ControlEnv:
         return self.env.obj_of_interest
 
     def step(self, action):
-        return self.env.step(action)
+        obs, reward, done, info = self.env.step(action)
+        
+        # Flip camera images vertically to fix upside-down rendering
+        for key in obs:
+            if 'image' in key or 'depth' in key:
+                if isinstance(obs[key], np.ndarray) and len(obs[key].shape) >= 2:
+                    obs[key] = obs[key][::-1]
+        
+        return obs, reward, done, info
 
     def reset(self):
         success = False
@@ -97,6 +105,12 @@ class ControlEnv:
                 pass
             finally:
                 continue
+
+        # Flip camera images vertically to fix upside-down rendering
+        for key in ret:
+            if 'image' in key or 'depth' in key:
+                if isinstance(ret[key], np.ndarray) and len(ret[key].shape) >= 2:
+                    ret[key] = ret[key][::-1]
 
         return ret
 
@@ -142,7 +156,21 @@ class ControlEnv:
         self.check_success()
         self._post_process()
         self._update_observables(force=True)
-        return self.env._get_observations()
+        return self._get_observations()
+
+    def _get_observations(self):
+        """
+        Override to flip camera images vertically to fix upside-down rendering.
+        """
+        obs = self.env._get_observations()
+
+        # Flip camera images vertically to fix upside-down rendering
+        for key in obs:
+            if 'image' in key or 'depth' in key:
+                if isinstance(obs[key], np.ndarray) and len(obs[key].shape) >= 2:
+                    obs[key] = obs[key][::-1]
+
+        return obs
 
     def close(self):
         self.env.close()
