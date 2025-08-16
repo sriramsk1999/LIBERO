@@ -797,6 +797,20 @@ class BDDLBaseDomain(SingleArmEnv):
         # Run superclass method first
         super().visualize(vis_settings=vis_settings)
 
+    def _get_observations(self):
+        """
+        Override to flip camera images vertically to fix upside-down rendering.
+        """
+        obs = super()._get_observations()
+        
+        # Flip all camera images (both RGB and depth) vertically
+        for key in obs:
+            if 'image' in key or 'depth' in key:
+                if isinstance(obs[key], np.ndarray) and len(obs[key].shape) >= 2:
+                    obs[key] = obs[key][::-1]
+        
+        return obs
+
     def step(self, action):
         if self.action_dim == 4 and len(action) > 4:
             # Convert OSC_POSITION action
